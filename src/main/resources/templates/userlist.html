@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>유저 관리 페이지</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #000000;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: center;
+            margin: 0;
+        }
+
+        li {
+            margin: 10px 0;
+            background-color: #ffffff;
+            padding: 10px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .remove-user {
+            color: red;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .remove-user:hover {
+            color: darkred;
+        }
+    </style>
+</head>
+<body>
+<h1>유저 관리 페이지</h1>
+<ul id="userList"></ul>
+
+<script>
+    // 유저 삭제 함수
+    async function removeUser(userId) {
+        try {
+            const response = await fetch('/api/v1/user/remove', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ userId: userId })
+            });
+
+            if (response.status === 200) {
+                // 해당 유저 항목을 제거합니다.
+                document.getElementById('user-' + userId).remove();
+            }
+        } catch (error) {
+            console.error('Error removing user:', error);
+        }
+    }
+
+    // 유저 목록을 불러오는 함수
+    async function loadUsers() {
+        try {
+            const response = await fetch('/api/v1/user/list');
+            const users = await response.json();
+            const userList = document.getElementById('userList');
+            users.forEach(user => {
+                const li = document.createElement('li');
+                li.id = 'user-' + user;
+                li.innerHTML = `${user} <span class="remove-user" onclick="removeUser('${user}')">삭제하기</span>`;
+                userList.appendChild(li);
+            });
+        } catch (error) {
+            console.error('Error loading users:', error);
+        }
+    }
+
+    // 페이지 로드 시 유저 목록을 불러옵니다.
+    window.onload = loadUsers;
+</script>
+</body>
+</html>
